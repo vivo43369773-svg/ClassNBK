@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Myroom — ไดเรกทอรีเพื่อนร่วมห้อง</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14213d; --muted:#5b6477; --paper:#f4f6fa; --card:#fff; --line:#dde2ec;
+  --accent:#3d5afe; --accent-dark:#2b43d4; --danger:#c62839; --track:#e8ecf4;
+  --display:'Kanit','Noto Sans Thai',system-ui,sans-serif;
+  --body:'Noto Sans Thai','Sarabun','Leelawadee UI',Tahoma,system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.65 var(--body);-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{width:min(1120px,100% - 40px);margin-inline:auto}
+[hidden]{display:none!important}
+
+/* header */
+.top{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:64px}
+.brand{font:600 1.2rem var(--display);color:var(--ink);text-decoration:none}
+#authArea{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.mini-tile{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:8px;font:600 .95rem var(--display);color:var(--ink);overflow:hidden}
+.mini-tile img{width:100%;height:100%;object-fit:cover}
+.photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:12px;padding:9px 18px;font-weight:600;cursor:pointer;transition:background .15s,border-color .15s}
+.btn:hover{background:var(--accent-dark);border-color:var(--accent-dark)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--ink);background:#fff}
+.btn.text{background:transparent;border-color:transparent;color:var(--muted);padding-inline:10px}
+.btn.text:hover{color:var(--ink);background:transparent}
+.btn.danger{background:transparent;color:var(--danger);border-color:#efc3c9}
+.btn.danger:hover{background:#fdf0f2;border-color:var(--danger)}
+.btn:disabled{opacity:.55;cursor:wait}
+
+/* hero */
+.hero{padding:56px 0 28px}
+h1{font:700 clamp(2rem,5.2vw,3.5rem)/1.15 var(--display);margin:0 0 12px;max-width:16ch}
+.lead{margin:0 0 28px;color:var(--muted);font-size:1.05rem;max-width:52ch}
+.search{position:relative;max-width:560px}
+.search svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.search input{width:100%;height:54px;border:1px solid var(--line);border-radius:14px;padding:0 16px 0 46px;background:#fff;font-size:1.05rem}
+.search input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px rgba(61,90,254,.18)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 14px;font-size:.92rem;cursor:pointer}
+.chip:hover{border-color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+
+/* directory */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin:8px 0 72px}
+.card{display:flex;flex-direction:column;text-align:left;padding:0;background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;cursor:pointer;transition:border-color .15s,transform .15s}
+.card:hover{border-color:var(--ink);transform:translateY(-2px)}
+.tile{position:relative;height:132px;padding:14px 16px;display:flex;align-items:flex-end}
+.tile .big{font:600 76px/0.9 var(--display);color:var(--ink)}
+.tile .no{position:absolute;top:10px;left:12px;font-size:.82rem;font-weight:500;color:var(--ink);background:rgba(255,255,255,.85);border-radius:999px;padding:0 10px;z-index:1}
+.tile .badge{z-index:1}
+.tile .badge{position:absolute;top:10px;right:12px;background:var(--ink);color:#fff;border-radius:999px;padding:1px 10px;font-size:.78rem}
+.card-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:4px}
+.card-body .name{font:500 1.2rem/1.3 var(--display)}
+.card-body .full{color:var(--muted);font-size:.92rem}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tag{background:var(--paper);border-radius:999px;padding:1px 10px;font-size:.82rem;color:var(--ink)}
+.state{grid-column:1/-1;padding:48px 24px;border:1px dashed var(--line);border-radius:18px;text-align:center;color:var(--muted);background:#fff}
+.state strong{display:block;font:500 1.15rem var(--display);color:var(--ink);margin-bottom:4px}
+.state .btn{margin-top:14px}
+
+/* insights */
+.insights{border-top:1px solid var(--line);padding:40px 0 72px}
+.insights h2{font:600 1.6rem var(--display);margin:0 0 4px}
+.insights .sub{color:var(--muted);margin:0 0 28px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.cols h3{font:500 1.05rem var(--display);margin:0 0 14px}
+.bar{display:grid;grid-template-columns:minmax(80px,140px) 1fr 28px;align-items:center;gap:12px;margin-bottom:10px;font-size:.95rem}
+.bar .track{height:10px;border-radius:6px;background:var(--track);overflow:hidden}
+.bar .fill{height:100%;background:var(--accent);border-radius:6px}
+.bar .n{text-align:right;color:var(--muted)}
+.bar .l{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.empty-note{color:var(--muted);font-size:.95rem}
+
+/* dialogs */
+dialog{border:none;border-radius:22px;padding:0;width:min(580px,94vw);max-height:92vh;background:#fff;color:var(--ink);overflow:hidden}
+dialog[open]{animation:pop .18s ease-out}
+dialog::backdrop{background:rgba(20,33,61,.5)}
+@keyframes pop{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
+.dlg{max-height:92vh;overflow:auto}
+.dlg-body{padding:24px}
+.dlg-x{position:absolute;top:12px;right:12px;z-index:2;width:36px;height:36px;border-radius:50%;border:none;background:rgba(255,255,255,.85);cursor:pointer;font-size:1.3rem;line-height:1}
+.dlg-x:hover{background:#fff}
+.dlg h2{font:600 1.5rem var(--display);margin:0 0 4px}
+.dlg h3{font:500 1.05rem var(--display);margin:26px 0 10px;padding-top:18px;border-top:1px solid var(--line)}
+.dlg h3.first{border-top:none;padding-top:0;margin-top:8px}
+.hint{color:var(--muted);font-size:.9rem;margin:0 0 14px}
+.tabs{display:flex;gap:4px;background:var(--paper);padding:4px;border-radius:12px;margin:14px 0 20px}
+.tabs button{flex:1;border:none;background:transparent;border-radius:9px;padding:8px;font-weight:600;color:var(--muted);cursor:pointer}
+.tabs button[aria-selected="true"]{background:#fff;color:var(--ink)}
+.field{margin-bottom:14px}
+.field label{display:block;font-weight:500;font-size:.93rem;margin-bottom:4px}
+.field input[type=text],.field input[type=password],.field input[type=email],.field input[type=tel],.field input[type=date],.field textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff}
+.field textarea{min-height:92px;resize:vertical}
+.field input:focus,.field textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px rgba(61,90,254,.18)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.counter{text-align:right;color:var(--muted);font-size:.82rem;margin-top:2px}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:.95rem;margin:4px 0 8px}
+.check input{margin-top:6px;width:18px;height:18px;accent-color:var(--accent)}
+.hobby-edit{border:1px solid var(--line);border-radius:12px;padding:6px 8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.hobby-edit:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(61,90,254,.18)}
+.hobby-edit input{flex:1;min-width:140px;border:none;outline:none;padding:6px 4px;background:transparent}
+.hobby-edit .tag{display:inline-flex;align-items:center;gap:6px}
+.hobby-edit .tag button{border:none;background:none;cursor:pointer;color:var(--muted);padding:0;font-size:1rem;line-height:1}
+.err{background:#fdf0f2;color:var(--danger);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:.93rem;white-space:pre-line}
+.actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap}
+details.account{margin-top:6px}
+details.account summary{cursor:pointer;font-weight:500;padding:6px 0}
+.danger-zone{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+
+/* profile view */
+.p-tile{position:relative;height:150px;padding:18px 24px;display:flex;align-items:flex-end}
+.p-tile .big{font:600 104px/0.85 var(--display)}
+.p-photo{width:112px;height:112px;border-radius:22px;object-fit:cover;border:4px solid #fff;margin-bottom:-34px;position:relative;z-index:1;background:#fff}
+.p-tile.has-photo+.dlg-body{padding-top:44px}
+.avatar-edit{display:flex;gap:16px;align-items:center;margin:4px 0 8px;flex-wrap:wrap}
+.av-prev{width:88px;height:88px;border-radius:20px;overflow:hidden;display:grid;place-items:center;font:600 3rem var(--display);flex:none}
+.av-prev img{width:100%;height:100%;object-fit:cover}
+.p-name{font:600 1.7rem/1.25 var(--display);margin:0}
+.p-sub{color:var(--muted);margin:2px 0 0}
+.p-bio{margin:16px 0 0;white-space:pre-wrap}
+dl.info{display:grid;grid-template-columns:120px 1fr;gap:8px 16px;margin:18px 0 0}
+dl.info dt{color:var(--muted);font-size:.93rem}
+dl.info dd{margin:0;word-break:break-word}
+dl.info a{color:var(--accent-dark)}
+.locked{background:var(--paper);border-radius:14px;padding:14px 16px;margin-top:18px;color:var(--muted);font-size:.95rem}
+.locked .btn{margin-top:10px}
+
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 20px;border-radius:12px;font-size:.95rem;z-index:100;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;text-align:center}
+#toast.show{opacity:1}
+
+@media (max-width:720px){
+  .cols{grid-template-columns:1fr;gap:28px}
+  .hero{padding-top:36px}
+  .row2{grid-template-columns:1fr}
+  dl.info{grid-template-columns:1fr;gap:0}
+  dl.info dd{margin-bottom:10px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+  .tile .big{font-size:60px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="/">ห้องเรียน M.6/1</a>
+    <nav id="authArea" aria-label="บัญชีผู้ใช้"></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+  <h1 id="heroTitle">เพื่อนร่วมห้อง</h1>
+  <p class="lead">ค้นหาจากชื่อ ชื่อเล่น หรือสิ่งที่ชอบ แล้วกดที่การ์ดเพื่อดูข้อมูลของเพื่อนแต่ละคน</p>
+  <div class="search">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" type="search" placeholder="ค้นหาเพื่อน" aria-label="ค้นหาเพื่อน" autocomplete="off">
+  </div>
+    <div id="chips" class="chips" role="group" aria-label="กรองตามงานอดิเรก"></div>
+  </section>
+
+  <section id="grid" class="grid" aria-live="polite"></section>
+
+  <section class="insights" aria-labelledby="insTitle">
+    <h2 id="insTitle">ภาพรวมของห้อง</h2>
+    <p class="sub" id="insSub"></p>
+    <div class="cols">
+      <div><h3>งานอดิเรกยอดนิยม</h3><div id="barHobbies"></div></div>
+      <div><h3>วิชาที่ชอบ</h3><div id="barSubjects"></div></div>
+    </div>
+  </section>
+</main>
+
+<dialog id="dlg"><div class="dlg" id="dlgInner"></div></dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v){ try { localStorage.setItem(k, v); } catch {} },
+  del(k){ try { localStorage.removeItem(k); } catch {} }
+};
+const state = { token: store.get('token'), me: null, users: [], stats: null, q: '', hobby: null };
+
+/* ---------- API ---------- */
+const FIELD_LABELS = { username:'ชื่อผู้ใช้', password:'รหัสผ่าน', new_password:'รหัสผ่านใหม่', full_name:'ชื่อ-นามสกุล', nickname:'ชื่อเล่น',
+  student_no:'เลขที่/รหัสนักเรียน', favorite_subject:'วิชาที่ชอบ', bio:'แนะนำตัว', email:'อีเมล', phone:'เบอร์โทร', line_id:'LINE ID',
+  instagram:'Instagram', birthday:'วันเกิด', hobbies:'งานอดิเรก' };
+function formatError(d){
+  if (!d) return '';
+  if (typeof d.detail === 'string') return d.detail;
+  if (Array.isArray(d.detail)) return d.detail.map(e => {
+    const field = FIELD_LABELS[(e.loc || []).slice(-1)[0]] || '';
+    let msg = String(e.msg || '').replace(/^Value error, /, '');
+    if (e.type === 'string_too_short') msg = 'สั้นเกินไป';
+    else if (e.type === 'string_too_long') msg = 'ยาวเกินไป';
+    else if (e.type === 'missing') msg = 'ต้องกรอก';
+    else if (/^[\x00-\x7f]*$/.test(msg)) msg = 'ข้อมูลไม่ถูกต้อง';
+    return field ? `${field}: ${msg}` : msg;
+  }).join('\n');
+  return '';
+}
+async function api(path, { method = 'GET', json, form, formData } = {}){
+  const headers = {};
+  let body;
+  if (state.token) headers.Authorization = 'Bearer ' + state.token;
+  if (json !== undefined){ headers['Content-Type'] = 'application/json'; body = JSON.stringify(json); }
+  if (form) body = new URLSearchParams(form);
+  if (formData) body = formData;   // multipart: ให้เบราว์เซอร์ตั้ง Content-Type เอง
+  let res;
+  try { res = await fetch('/api' + path, { method, headers, body }); }
+  catch { throw new Error('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ลองใหม่อีกครั้ง'); }
+  if (res.status === 204) return null;
+  let data = null;
+  try { data = await res.json(); } catch {}
+  if (!res.ok){
+    if (res.status === 401 && state.token && !path.startsWith('/auth/')){ logout(); toast('เซสชันหมดอายุ กรุณาเข้าสู่ระบบอีกครั้ง'); }
+    throw new Error(formatError(data) || `เกิดข้อผิดพลาด (${res.status})`);
+  }
+  return data;
+}
+
+/* ---------- helpers ---------- */
+const PALETTE = ['#ffd166','#8ecae6','#a8e6b0','#ff9fa8','#c3b1ff','#7fe0c8','#ffb38a','#a5c8ff'];
+function tileColor(u){ let h = 0; for (const c of u.username) h = (h * 31 + c.codePointAt(0)) >>> 0; return PALETTE[h % PALETTE.length]; }
+function shownName(u){ return u.nickname || u.full_name || u.username; }
+function initial(u){
+  const chars = Array.from(shownName(u).trim());
+  let i = 0;
+  if (chars.length > 1 && /[เแโใไ]/.test(chars[0])) i = 1;   // ข้ามสระนำ เพื่อให้ได้พยัญชนะ
+  return (chars[i] || '?').toUpperCase();
+}
+function tileInner(u){
+  return u.avatar_url
+    ? `<img class="photo" src="${esc(u.avatar_url)}" alt="รูปของ ${esc(shownName(u))}" loading="lazy">`
+    : `<span class="big" aria-hidden="true">${esc(initial(u))}</span>`;
+}
+function miniInner(u){ return u.avatar_url ? `<img src="${esc(u.avatar_url)}" alt="">` : esc(initial(u)); }
+async function resizeImage(file, size = 512){
+  if (!/^image\/(jpeg|png|webp)$/.test(file.type)) throw new Error('รองรับเฉพาะไฟล์ JPG, PNG หรือ WebP');
+  let bmp;
+  try { bmp = await createImageBitmap(file, { imageOrientation: 'from-image' }); }
+  catch { throw new Error('เปิดไฟล์รูปนี้ไม่ได้ ลองใช้รูปอื่น'); }
+  const side = Math.min(bmp.width, bmp.height);          // ครอปเป็นสี่เหลี่ยมจัตุรัสตรงกลาง
+  const c = document.createElement('canvas');
+  c.width = c.height = Math.min(size, side);
+  c.getContext('2d').drawImage(bmp, (bmp.width - side) / 2, (bmp.height - side) / 2, side, side, 0, 0, c.width, c.height);
+  return new Promise((ok, no) => c.toBlob(b => b ? ok(b) : no(new Error('แปลงรูปไม่สำเร็จ')), 'image/jpeg', 0.86));
+}
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2800);
+}
+function thaiBirthday(iso){
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString('th-TH', { day: 'numeric', month: 'long' });
+}
+
+/* ---------- dialog ---------- */
+const dlg = $('#dlg'), dlgInner = $('#dlgInner');
+function openDialog(html){
+  dlgInner.innerHTML = `<button class="dlg-x" type="button" data-close aria-label="ปิด">×</button>${html}`;
+  if (!dlg.open) dlg.showModal();
+  dlgInner.scrollTop = 0;
+}
+dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('[data-close]')) dlg.close(); });
+
+/* ---------- header ---------- */
+function renderAuthArea(){
+  const el = $('#authArea');
+  if (state.me){
+    el.innerHTML = `
+      <button class="btn ghost" id="btnMe" type="button"><span class="mini-tile" style="background:${tileColor(state.me)}">${miniInner(state.me)}</span>ข้อมูลของฉัน</button>
+      <button class="btn text" id="btnLogout" type="button">ออกจากระบบ</button>`;
+  } else {
+    el.innerHTML = `
+      <button class="btn ghost" id="btnLogin" type="button">เข้าสู่ระบบ</button>
+      <button class="btn" id="btnRegister" type="button">สมัครสมาชิก</button>`;
+  }
+}
+$('#authArea').addEventListener('click', e => {
+  const id = e.target.closest('button')?.id;
+  if (id === 'btnLogin') openAuth('login');
+  else if (id === 'btnRegister') openAuth('register');
+  else if (id === 'btnMe') openEdit();
+  else if (id === 'btnLogout'){ logout(); toast('ออกจากระบบแล้ว'); }
+});
+
+function logout(){
+  state.token = null; state.me = null; store.del('token');
+  renderAuthArea(); loadDirectory();
+}
+
+/* ---------- directory ---------- */
+function filtered(){
+  const q = state.q.trim().toLowerCase();
+  return state.users.filter(u => {
+    if (state.hobby && !u.hobbies.some(h => h.toLowerCase() === state.hobby.toLowerCase())) return false;
+    if (!q) return true;
+    return [u.username, u.full_name, u.nickname, u.student_no, u.favorite_subject, u.bio, ...u.hobbies]
+      .filter(Boolean).join(' ').toLowerCase().includes(q);
+  });
+}
+function renderGrid(){
+  const grid = $('#grid');
+  const n = state.users.length;
+  $('#heroTitle').textContent = n ? `เพื่อนร่วมห้อง ${n} คน` : 'ห้องเรียนยังว่างอยู่';
+  if (!n){
+    grid.innerHTML = `<div class="state"><strong>ยังไม่มีใครในห้อง</strong>สมัครเป็นคนแรก คุณจะได้เป็นผู้ดูแลห้องนี้
+      ${state.me ? '' : '<br><button class="btn" type="button" data-act="register">สมัครสมาชิก</button>'}</div>`;
+    return;
+  }
+  const list = filtered();
+  if (!list.length){
+    grid.innerHTML = `<div class="state"><strong>ไม่พบเพื่อนที่ตรงกับคำค้น</strong>ลองใช้คำอื่น หรือล้างตัวกรองงานอดิเรก
+      <br><button class="btn ghost" type="button" data-act="clear">ล้างการค้นหา</button></div>`;
+    return;
+  }
+  grid.innerHTML = list.map(u => `
+    <button type="button" class="card" data-id="${u.id}">
+      <div class="tile" style="background:${tileColor(u)}">
+        ${u.student_no ? `<span class="no">เลขที่ ${esc(u.student_no)}</span>` : ''}
+        ${u.role === 'admin' ? '<span class="badge">ผู้ดูแล</span>' : ''}
+        ${tileInner(u)}
+      </div>
+      <div class="card-body">
+        <span class="name">${esc(shownName(u))}</span>
+        ${u.nickname && u.full_name ? `<span class="full">${esc(u.full_name)}</span>` : ''}
+        ${u.favorite_subject ? `<span class="full">ชอบวิชา${esc(u.favorite_subject)}</span>` : ''}
+        ${u.hobbies.length ? `<div class="tags">${u.hobbies.slice(0, 3).map(h => `<span class="tag">${esc(h)}</span>`).join('')}${u.hobbies.length > 3 ? `<span class="tag">+${u.hobbies.length - 3}</span>` : ''}</div>` : ''}
+      </div>
+    </button>`).join('');
+}
+$('#grid').addEventListener('click', e => {
+  const act = e.target.closest('[data-act]')?.dataset.act;
+  if (act === 'register') return openAuth('register');
+  if (act === 'clear'){ state.q = ''; state.hobby = null; $('#q').value = ''; renderChips(); return renderGrid(); }
+  const id = e.target.closest('[data-id]')?.dataset.id;
+  if (id) openProfile(Number(id));
+});
+$('#q').addEventListener('input', e => { state.q = e.target.value; renderGrid(); });
+
+function renderChips(){
+  const hobbies = state.stats?.top_hobbies?.slice(0, 8) || [];
+  $('#chips').innerHTML = hobbies.map(h =>
+    `<button type="button" class="chip" aria-pressed="${state.hobby === h.name}" data-h="${esc(h.name)}">${esc(h.name)} <b style="font-weight:500;color:inherit;opacity:.65">${h.count}</b></button>`).join('');
+}
+$('#chips').addEventListener('click', e => {
+  const h = e.target.closest('[data-h]')?.dataset.h;
+  if (!h) return;
+  state.hobby = state.hobby === h ? null : h;
+  renderChips(); renderGrid();
+});
+
+function renderBars(el, items, emptyMsg){
+  if (!items.length){ el.innerHTML = `<p class="empty-note">${emptyMsg}</p>`; return; }
+  const max = Math.max(...items.map(i => i.count));
+  el.innerHTML = items.map(i => `
+    <div class="bar"><span class="l" title="${esc(i.name)}">${esc(i.name)}</span>
+      <span class="track"><span class="fill" style="display:block;width:${Math.max(6, i.count / max * 100)}%"></span></span>
+      <span class="n">${i.count}</span></div>`).join('');
+}
+function renderStats(){
+  const s = state.stats; if (!s) return;
+  $('#insSub').textContent = s.total_users
+    ? `กรอกข้อมูลครบแล้ว ${s.complete_profiles} จาก ${s.total_users} คน (ชื่อ-นามสกุล แนะนำตัว และงานอดิเรกอย่างน้อยหนึ่งอย่าง)`
+    : 'ยังไม่มีข้อมูลให้สรุป';
+  renderBars($('#barHobbies'), s.top_hobbies.slice(0, 8), 'ยังไม่มีใครเพิ่มงานอดิเรก เพิ่มได้ที่ “ข้อมูลของฉัน”');
+  renderBars($('#barSubjects'), s.top_subjects.slice(0, 6), 'ยังไม่มีใครเลือกวิชาที่ชอบ');
+}
+
+async function loadDirectory(){
+  try {
+    const [users, stats] = await Promise.all([api('/users'), api('/analytics')]);
+    state.users = users; state.stats = stats;
+    if (state.hobby && !stats.top_hobbies.some(h => h.name === state.hobby)) state.hobby = null;
+    renderChips(); renderGrid(); renderStats();
+  } catch (err){
+    $('#grid').innerHTML = `<div class="state"><strong>โหลดข้อมูลไม่สำเร็จ</strong>${esc(err.message)}<br><button class="btn ghost" type="button" id="retry">ลองอีกครั้ง</button></div>`;
+    $('#retry').onclick = loadDirectory;
+  }
+}
+
+/* ---------- profile view ---------- */
+function openProfile(id){
+  const u = state.users.find(x => x.id === id); if (!u) return;
+  const isMe = state.me?.id === u.id;
+  const isAdmin = state.me?.role === 'admin';
+
+  const rows = [];
+  if (u.student_no) rows.push(['เลขที่/รหัส', esc(u.student_no)]);
+  if (u.favorite_subject) rows.push(['วิชาที่ชอบ', esc(u.favorite_subject)]);
+  if (u.hobbies.length) rows.push(['งานอดิเรก', `<div class="tags" style="margin:0">${u.hobbies.map(h => `<span class="tag">${esc(h)}</span>`).join('')}</div>`]);
+
+  let contact = '';
+  if (u.contact_locked === 'login'){
+    contact = `<div class="locked">เข้าสู่ระบบเพื่อดูช่องทางติดต่อของเพื่อน<br><button class="btn" type="button" data-go="login">เข้าสู่ระบบ</button></div>`;
+  } else if (u.contact_locked === 'private'){
+    contact = `<div class="locked">เจ้าของโปรไฟล์ไม่ได้แชร์ช่องทางติดต่อ</div>`;
+  } else {
+    const c = [];
+    if (u.email) c.push(['อีเมล', `<a href="mailto:${esc(u.email)}">${esc(u.email)}</a>`]);
+    if (u.phone) c.push(['เบอร์โทร', `<a href="tel:${esc(u.phone.replace(/[^0-9+]/g, ''))}">${esc(u.phone)}</a>`]);
+    if (u.line_id) c.push(['LINE', esc(u.line_id)]);
+    if (u.instagram) c.push(['Instagram', `<a href="https://instagram.com/${encodeURIComponent(u.instagram)}" target="_blank" rel="noopener">@${esc(u.instagram)}</a>`]);
+    if (u.birthday) c.push(['วันเกิด', esc(thaiBirthday(u.birthday))]);
+    contact = c.length
+      ? `<dl class="info">${c.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`
+      : `<div class="locked">${isMe ? 'คุณยังไม่ได้เพิ่มช่องทางติดต่อ' : 'เพื่อนคนนี้ยังไม่ได้เพิ่มช่องทางติดต่อ'}</div>`;
+  }
+
+  const adminBox = (isAdmin && !isMe) ? `
+    <div class="danger-zone">
+      <span class="hint" style="margin:0">เมนูผู้ดูแล</span>
+      <span style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn ghost" type="button" data-role="${u.role === 'admin' ? 'member' : 'admin'}">${u.role === 'admin' ? 'ปรับเป็นสมาชิก' : 'แต่งตั้งเป็นผู้ดูแล'}</button>
+        <button class="btn danger" type="button" data-del>ลบผู้ใช้</button>
+      </span>
+    </div>` : '';
+
+  openDialog(`
+    <div class="p-tile${u.avatar_url ? ' has-photo' : ''}" style="background:${tileColor(u)}">${u.avatar_url ? `<img class="p-photo" src="${esc(u.avatar_url)}" alt="รูปของ ${esc(shownName(u))}">` : `<span class="big" aria-hidden="true">${esc(initial(u))}</span>`}</div>
+    <div class="dlg-body" data-uid="${u.id}">
+      <h2 class="p-name">${esc(shownName(u))}${u.role === 'admin' ? ' <span class="tag" style="vertical-align:middle">ผู้ดูแล</span>' : ''}</h2>
+      <p class="p-sub">${u.nickname && u.full_name ? esc(u.full_name) + '<br>' : ''}@${esc(u.username)}</p>
+      ${u.bio ? `<p class="p-bio">${esc(u.bio)}</p>` : ''}
+      ${rows.length ? `<dl class="info">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>` : ''}
+      ${contact}
+      ${isMe ? '<div class="actions"><button class="btn" type="button" data-go="edit">แก้ไขข้อมูลของฉัน</button></div>' : ''}
+      ${adminBox}
+    </div>`);
+}
+dlgInner.addEventListener('click', async e => {
+  const go = e.target.closest('[data-go]')?.dataset.go;
+  if (go === 'login') return openAuth('login');
+  if (go === 'edit') return openEdit();
+  const body = e.target.closest('[data-uid]'); if (!body) return;
+  const uid = Number(body.dataset.uid);
+  const role = e.target.closest('[data-role]')?.dataset.role;
+  if (role){
+    try { await api(`/users/${uid}/role`, { method: 'PATCH', json: { role } }); toast('อัปเดตสิทธิ์แล้ว'); await loadDirectory(); openProfile(uid); }
+    catch (err){ toast(err.message); }
+  }
+  if (e.target.closest('[data-del]')){
+    const u = state.users.find(x => x.id === uid);
+    if (!confirm(`ลบ “${shownName(u)}” ออกจากห้อง? การลบย้อนกลับไม่ได้`)) return;
+    try { await api(`/users/${uid}`, { method: 'DELETE' }); dlg.close(); toast('ลบผู้ใช้แล้ว'); loadDirectory(); }
+    catch (err){ toast(err.message); }
+  }
+});
+
+/* ---------- login / register ---------- */
+function openAuth(mode){
+  const reg = mode === 'register';
+  openDialog(`
+    <div class="dlg-body">
+      <h2>${reg ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ'}</h2>
+      <p class="hint" style="margin-bottom:0">${reg ? 'ตั้งชื่อผู้ใช้กับรหัสผ่าน แล้วเพิ่มข้อมูลของคุณได้ทันที' : 'ใช้ชื่อผู้ใช้และรหัสผ่านที่สมัครไว้'}</p>
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" aria-selected="${!reg}" data-tab="login">เข้าสู่ระบบ</button>
+        <button type="button" role="tab" aria-selected="${reg}" data-tab="register">สมัครสมาชิก</button>
+      </div>
+      <form id="authForm" novalidate>
+        <div id="authErr"></div>
+        <div class="field"><label for="f_username">ชื่อผู้ใช้</label><input id="f_username" type="text" autocomplete="username" autocapitalize="none" required autofocus>${reg ? '<div class="counter" style="text-align:left">3-30 ตัว ใช้ a-z 0-9 _ . -</div>' : ''}</div>
+        <div class="field"><label for="f_password">รหัสผ่าน</label><input id="f_password" type="password" autocomplete="${reg ? 'new-password' : 'current-password'}" required>${reg ? '<div class="counter" style="text-align:left">อย่างน้อย 6 ตัว</div>' : ''}</div>
+        ${reg ? `<div class="row2">
+          <div class="field"><label for="f_full">ชื่อ-นามสกุล</label><input id="f_full" type="text" autocomplete="name"></div>
+          <div class="field"><label for="f_nick">ชื่อเล่น</label><input id="f_nick" type="text"></div></div>` : ''}
+        <div class="actions"><button class="btn" type="submit" id="authSubmit">${reg ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ'}</button></div>
+      </form>
+    </div>`);
+  $('.tabs', dlgInner).addEventListener('click', e => { const t = e.target.closest('[data-tab]')?.dataset.tab; if (t && t !== mode) openAuth(t); });
+  $('#authForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = $('#authSubmit'); btn.disabled = true; $('#authErr').innerHTML = '';
+    const username = $('#f_username').value.trim(), password = $('#f_password').value;
+    try {
+      const data = reg
+        ? await api('/auth/register', { method: 'POST', json: { username, password, full_name: $('#f_full').value, nickname: $('#f_nick').value } })
+        : await api('/auth/login', { method: 'POST', form: { username, password } });
+      state.token = data.access_token; state.me = data.user; store.set('token', state.token);
+      renderAuthArea(); await loadDirectory();
+      if (reg){ toast('สมัครสมาชิกสำเร็จ เพิ่มข้อมูลของคุณได้เลย'); openEdit(); }
+      else { dlg.close(); toast(`ยินดีต้อนรับ ${shownName(state.me)}`); }
+    } catch (err){
+      $('#authErr').innerHTML = `<div class="err" role="alert">${esc(err.message)}</div>`;
+      btn.disabled = false;
+    }
+  });
+}
+
+/* ---------- edit my information ---------- */
+function openEdit(){
+  const m = state.me; if (!m) return openAuth('login');
+  let hobbies = [...m.hobbies];
+  const v = k => esc(m[k] ?? '');
+  openDialog(`
+    <div class="dlg-body">
+      <h2>ข้อมูลของฉัน</h2>
+      <p class="hint">ข้อมูลทั่วไปทุกคนเห็นได้ ส่วนช่องทางติดต่อเห็นได้เฉพาะเพื่อนที่เข้าสู่ระบบ</p>
+      <div class="avatar-edit">
+        <div class="av-prev" id="avPrev"></div>
+        <div>
+          <div style="font-weight:500">รูปโปรไฟล์ (ไม่บังคับ)</div>
+          <p class="hint" style="margin:0 0 8px">รูปหน้าตรงช่วยให้เพื่อนจำได้ง่าย ระบบจะครอปตรงกลางเป็นสี่เหลี่ยมจัตุรัส</p>
+          <button type="button" class="btn ghost" id="avPick">เลือกรูป</button>
+          <button type="button" class="btn text" id="avDel">ลบรูป</button>
+          <input type="file" id="avFile" accept="image/jpeg,image/png,image/webp" hidden>
+        </div>
+      </div>
+      <form id="editForm" novalidate>
+        <div id="editErr"></div>
+        <h3 class="first">ข้อมูลทั่วไป</h3>
+        <div class="row2">
+          <div class="field"><label for="e_full">ชื่อ-นามสกุล</label><input id="e_full" type="text" maxlength="100" value="${v('full_name')}" autocomplete="name"></div>
+          <div class="field"><label for="e_nick">ชื่อเล่น</label><input id="e_nick" type="text" maxlength="40" value="${v('nickname')}"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label for="e_no">เลขที่/รหัสนักเรียน</label><input id="e_no" type="text" maxlength="20" value="${v('student_no')}"></div>
+          <div class="field"><label for="e_subj">วิชาที่ชอบ</label><input id="e_subj" type="text" maxlength="60" value="${v('favorite_subject')}"></div>
+        </div>
+        <div class="field"><label for="hobbyInput">งานอดิเรก</label>
+          <div class="hobby-edit" id="hobbyBox"><span id="hobbyTags" style="display:contents"></span><input id="hobbyInput" type="text" maxlength="30" placeholder="พิมพ์แล้วกด Enter"></div>
+          <div class="counter" id="hobbyCount"></div></div>
+        <div class="field"><label for="e_bio">แนะนำตัว</label><textarea id="e_bio" maxlength="300">${v('bio')}</textarea><div class="counter" id="bioCount"></div></div>
+
+        <h3>ช่องทางติดต่อ</h3>
+        <label class="check"><input type="checkbox" id="e_share" ${m.share_contact ? 'checked' : ''}><span>แสดงช่องทางติดต่อและวันเกิดให้เพื่อนที่เข้าสู่ระบบเห็น</span></label>
+        <div class="row2">
+          <div class="field"><label for="e_email">อีเมล</label><input id="e_email" type="email" maxlength="120" value="${v('email')}" autocomplete="email"></div>
+          <div class="field"><label for="e_phone">เบอร์โทร</label><input id="e_phone" type="tel" maxlength="30" value="${v('phone')}" autocomplete="tel"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label for="e_line">LINE ID</label><input id="e_line" type="text" maxlength="60" value="${v('line_id')}"></div>
+          <div class="field"><label for="e_ig">Instagram</label><input id="e_ig" type="text" maxlength="31" placeholder="ไม่ต้องใส่ @" value="${v('instagram')}"></div>
+        </div>
+        <div class="field" style="max-width:260px"><label for="e_bd">วันเกิด</label><input id="e_bd" type="date" value="${v('birthday')}" max="${new Date().toISOString().slice(0, 10)}"></div>
+
+        <div class="actions"><button type="button" class="btn ghost" data-close>ยกเลิก</button><button class="btn" type="submit" id="editSubmit">บันทึกข้อมูล</button></div>
+      </form>
+
+      <h3>บัญชี</h3>
+      <details class="account"><summary>เปลี่ยนรหัสผ่าน</summary>
+        <div id="pwErr" style="margin-top:10px"></div>
+        <div class="row2" style="margin-top:10px">
+          <div class="field"><label for="pw_old">รหัสผ่านปัจจุบัน</label><input id="pw_old" type="password" autocomplete="current-password"></div>
+          <div class="field"><label for="pw_new">รหัสผ่านใหม่</label><input id="pw_new" type="password" autocomplete="new-password"></div>
+        </div>
+        <button type="button" class="btn ghost" id="pwSave">เปลี่ยนรหัสผ่าน</button>
+      </details>
+      <div class="danger-zone"><span class="hint" style="margin:0">ลบบัญชีและข้อมูลของคุณออกจากห้อง</span><button type="button" class="btn danger" id="delMe">ลบบัญชีของฉัน</button></div>
+    </div>`);
+
+  const renderAv = () => {
+    const me = state.me, prev = $('#avPrev');
+    prev.style.background = tileColor(me);
+    prev.innerHTML = me.avatar_url ? `<img src="${esc(me.avatar_url)}" alt="รูปโปรไฟล์ของคุณ">` : esc(initial(me));
+    $('#avDel').hidden = !me.avatar_url;
+    $('#avPick').textContent = me.avatar_url ? 'เปลี่ยนรูป' : 'เลือกรูป';
+  };
+  renderAv();
+  $('#avPick').addEventListener('click', () => $('#avFile').click());
+  $('#avFile').addEventListener('change', async e => {
+    const f = e.target.files[0]; e.target.value = '';
+    if (!f) return;
+    const btn = $('#avPick'); btn.disabled = true;
+    try {
+      const fd = new FormData(); fd.append('file', await resizeImage(f), 'avatar.jpg');
+      state.me = await api('/me/avatar', { method: 'POST', formData: fd });
+      renderAv(); renderAuthArea(); loadDirectory(); toast('อัปโหลดรูปแล้ว');
+    } catch (err){ toast(err.message); }
+    btn.disabled = false;
+  });
+  $('#avDel').addEventListener('click', async () => {
+    try { state.me = await api('/me/avatar', { method: 'DELETE' }); renderAv(); renderAuthArea(); loadDirectory(); toast('ลบรูปแล้ว'); }
+    catch (err){ toast(err.message); }
+  });
+
+  const input = $('#hobbyInput');
+  const renderHobbies = () => {
+    $('#hobbyTags').innerHTML = hobbies.map((h, i) => `<span class="tag">${esc(h)}<button type="button" data-rm="${i}" aria-label="ลบ ${esc(h)}">×</button></span>`).join('');
+    $('#hobbyCount').textContent = `${hobbies.length}/12`;
+    input.disabled = hobbies.length >= 12;
+  };
+  const addHobby = () => {
+    const val = input.value.replace(/,/g, '').trim(); input.value = '';
+    if (val && hobbies.length < 12 && !hobbies.some(h => h.toLowerCase() === val.toLowerCase())){ hobbies.push(val); renderHobbies(); }
+  };
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ','){ e.preventDefault(); addHobby(); }
+    else if (e.key === 'Backspace' && !input.value && hobbies.length){ hobbies.pop(); renderHobbies(); }
+  });
+  input.addEventListener('blur', addHobby);
+  $('#hobbyTags').addEventListener('click', e => { const i = e.target.closest('[data-rm]')?.dataset.rm; if (i !== undefined){ hobbies.splice(Number(i), 1); renderHobbies(); input.focus(); } });
+  renderHobbies();
+
+  const bio = $('#e_bio'), upd = () => { $('#bioCount').textContent = `${bio.value.length}/300`; };
+  bio.addEventListener('input', upd); upd();
+
+  $('#editForm').addEventListener('submit', async e => {
+    e.preventDefault(); addHobby();
+    const btn = $('#editSubmit'); btn.disabled = true; $('#editErr').innerHTML = '';
+    const val = id => $(id).value.trim() || null;
+    try {
+      state.me = await api('/me', { method: 'PATCH', json: {
+        full_name: val('#e_full'), nickname: val('#e_nick'), student_no: val('#e_no'), favorite_subject: val('#e_subj'),
+        hobbies, bio: val('#e_bio'), email: val('#e_email'), phone: val('#e_phone'), line_id: val('#e_line'),
+        instagram: val('#e_ig'), birthday: val('#e_bd'), share_contact: $('#e_share').checked
+      }});
+      renderAuthArea(); await loadDirectory(); dlg.close(); toast('บันทึกข้อมูลแล้ว');
+    } catch (err){
+      $('#editErr').innerHTML = `<div class="err" role="alert">${esc(err.message)}</div>`;
+      $('#editErr').scrollIntoView({ block: 'nearest' });
+      btn.disabled = false;
+    }
+  });
+
+  $('#pwSave').addEventListener('click', async () => {
+    $('#pwErr').innerHTML = '';
+    try {
+      await api('/me/password', { method: 'POST', json: { current_password: $('#pw_old').value, new_password: $('#pw_new').value } });
+      $('#pw_old').value = ''; $('#pw_new').value = ''; toast('เปลี่ยนรหัสผ่านแล้ว');
+    } catch (err){ $('#pwErr').innerHTML = `<div class="err" role="alert">${esc(err.message)}</div>`; }
+  });
+  $('#delMe').addEventListener('click', async () => {
+    if (!confirm('ลบบัญชีของคุณถาวร? ข้อมูลทั้งหมดจะหายและย้อนกลับไม่ได้')) return;
+    try { await api('/me', { method: 'DELETE' }); dlg.close(); logout(); toast('ลบบัญชีแล้ว'); }
+    catch (err){ toast(err.message); }
+  });
+}
+
+/* ---------- init ---------- */
+(async function init(){
+  renderAuthArea();
+  $('#grid').innerHTML = '<div class="state">กำลังโหลด…</div>';
+  if (state.token){
+    try { state.me = await api('/me'); } catch { state.token = null; store.del('token'); }
+    renderAuthArea();
+  }
+  loadDirectory();
+})();
+</script>
+</body>
+</html>

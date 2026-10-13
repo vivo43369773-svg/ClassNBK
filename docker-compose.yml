@@ -1,0 +1,12 @@
+services:
+  web:
+    build: .
+    container_name: classroom_app
+    ports:
+      - "8000:8000"
+    environment:
+      # ตั้งค่าใน .env (SECRET_KEY=สตริงสุ่มยาวๆ) ถ้าไม่ตั้ง ระบบจะสุ่มและเก็บไว้ใน data/
+      - SECRET_KEY=${SECRET_KEY:-}
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
