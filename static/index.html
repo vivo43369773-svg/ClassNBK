@@ -3,20 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Myroom — ไดเรกทอรีเพื่อนร่วมห้อง</title>
+<link rel="stylesheet" href="/static/data-rain.css">
+<script src="/static/data-rain.js" defer></script>
+<title>Myschool</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
   --ink:#14213d; --muted:#5b6477; --paper:#f4f6fa; --card:#fff; --line:#dde2ec;
-  --accent:#3d5afe; --accent-dark:#2b43d4; --danger:#c62839; --track:#e8ecf4;
+  --accent:#ff00d4; --accent-dark:#c858a7; --danger:#c62839; --track:#e8ecf4; /* --accent:#3d5afe,--ink:#14213d;  --accent-dark:#2b43d4;   --line:#dde2ec*/
   --display:'Kanit','Noto Sans Thai',system-ui,sans-serif;
   --body:'Noto Sans Thai','Sarabun','Leelawadee UI',Tahoma,system-ui,sans-serif;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.65 var(--body);-webkit-font-smoothing:antialiased}
+/* body{margin:0;background:rgb(255, 226, 250);color:var(--ink);font:400 16px/1.65 var(--body);-webkit-font-smoothing:antialiased}*/
 button,input,textarea,select{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .wrap{width:min(1120px,100% - 40px);margin-inline:auto}
@@ -74,7 +76,7 @@ h1{font:700 clamp(2rem,5.2vw,3.5rem)/1.15 var(--display);margin:0 0 12px;max-wid
 .state .btn{margin-top:14px}
 
 /* insights */
-.insights{border-top:1px solid var(--line);padding:40px 0 72px}
+.insights{border-top:1px solid #9a9a9a;padding:40px 0 72px}
 .insights h2{font:600 1.6rem var(--display);margin:0 0 4px}
 .insights .sub{color:var(--muted);margin:0 0 28px}
 .cols{display:grid;grid-template-columns:1fr 1fr;gap:40px}
@@ -83,7 +85,7 @@ h1{font:700 clamp(2rem,5.2vw,3.5rem)/1.15 var(--display);margin:0 0 12px;max-wid
 .bar .track{height:10px;border-radius:6px;background:var(--track);overflow:hidden}
 .bar .fill{height:100%;background:var(--accent);border-radius:6px}
 .bar .n{text-align:right;color:var(--muted)}
-.bar .l{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .l{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);}
 .empty-note{color:var(--muted);font-size:.95rem}
 
 /* dialogs */
@@ -152,6 +154,9 @@ dl.info a{color:var(--accent-dark)}
   .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
   .tile .big{font-size:60px}
 }
+
+.brand{color: #f0039d;}
+
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
@@ -159,15 +164,15 @@ dl.info a{color:var(--accent-dark)}
 
 <header class="top">
   <div class="wrap top-in">
-    <a class="brand" href="/">ห้องเรียน M.6/1</a>
+    <a class="brand" href="/" style="font-family:Sriracha,cursive; font-size:50px; font-weight: 700;">NBK</a>
     <nav id="authArea" aria-label="บัญชีผู้ใช้"></nav>
   </div>
 </header>
 
 <main class="wrap">
   <section class="hero">
-  <h1 id="heroTitle">เพื่อนร่วมห้อง</h1>
-  <p class="lead">ค้นหาจากชื่อ ชื่อเล่น หรือสิ่งที่ชอบ แล้วกดที่การ์ดเพื่อดูข้อมูลของเพื่อนแต่ละคน</p>
+  <h1 id="heroTitle" style="color:#f4f6fa; font-family:'Sriracha',cursive;">เพื่อนร่วมห้อง</h1>
+  <p class= "lead">ค้นหาจากชื่อ ชื่อเล่น หรือสิ่งที่ชอบ แล้วกดที่การ์ดเพื่อดูข้อมูลของเพื่อนแต่ละคน</p>
   <div class="search">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
     <input id="q" type="search" placeholder="ค้นหาเพื่อน" aria-label="ค้นหาเพื่อน" autocomplete="off">
@@ -178,11 +183,11 @@ dl.info a{color:var(--accent-dark)}
   <section id="grid" class="grid" aria-live="polite"></section>
 
   <section class="insights" aria-labelledby="insTitle">
-    <h2 id="insTitle">ภาพรวมของห้อง</h2>
+    <h2 id="insTitle" style="color: white; font-family:'Sriracha',cursive;">ภาพรวมของห้อง</h2>
     <p class="sub" id="insSub"></p>
     <div class="cols">
-      <div><h3>งานอดิเรกยอดนิยม</h3><div id="barHobbies"></div></div>
-      <div><h3>วิชาที่ชอบ</h3><div id="barSubjects"></div></div>
+      <div><h3 style="color: white;">งานอดิเรกยอดนิยม</h3><div id="barHobbies"></div></div>
+      <div><h3 style="color: white;">วิชาที่ชอบ</h3><div id="barSubjects"></div></div>
     </div>
   </section>
 </main>

@@ -11,6 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import func, inspect, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+import os
 
 import models
 from auth import (
@@ -34,6 +35,7 @@ from schemas import (
 Base.metadata.create_all(bind=engine)
 
 
+
 def _migrate() -> None:
     """เพิ่มคอลัมน์ใหม่ให้ฐานข้อมูลเดิมที่สร้างไว้ก่อนมีฟีเจอร์รูปโปรไฟล์"""
     cols = {c["name"] for c in inspect(engine).get_columns("users")}
@@ -52,6 +54,11 @@ BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
 
 app = FastAPI(title="Classroom Directory API", version="2.0.0")
+
+os.makedirs("static", exist_ok=True)
+
+# จากนั้นค่อยสั่ง mount ตามปกติ
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 # ใช้ Bearer token ใน header (ไม่ใช้ cookie) จึงเปิด origin กว้างได้โดยไม่ต้อง allow_credentials
 app.add_middleware(
