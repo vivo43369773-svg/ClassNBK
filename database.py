@@ -11,7 +11,7 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DATA_DIR / 'classroom.db'}").strip()
 
-# บังคับใช้ไดรเวอร์ psycopg2 ไม่ว่า URL จะขึ้นต้นแบบไหน (postgres://, postgresql://, postgresql+psycopg://)
+# บังคับใช้ไดรเวอร์ psycopg2 ไม่ว่า URL จะขึ้นต้นแบบไหน
 DATABASE_URL = re.sub(r"^postgres(ql)?(\+\w+)?://", "postgresql+psycopg2://", DATABASE_URL)
 
 engine = create_engine(
